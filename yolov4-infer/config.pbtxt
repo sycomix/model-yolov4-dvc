@@ -1,6 +1,6 @@
 name: "yolov4-infer"
 platform: "onnxruntime_onnx"
-max_batch_size: 32
+max_batch_size: 8
 input [
   {
     name: "input_1:0",
