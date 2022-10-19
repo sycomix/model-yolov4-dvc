@@ -4,6 +4,7 @@ import json
 
 from typing import List
 from PIL import Image
+import cv2
 
 from triton_python_backend_utils import Tensor, InferenceResponse, \
     get_input_tensor_by_name, InferenceRequest, get_output_config_by_name, \
@@ -17,7 +18,7 @@ def image_preprocess(image, target_size, gt_boxes=None):
 
     scale = min(iw/w, ih/h)
     nw, nh = int(scale * w), int(scale * h)
-    image_resized = image.resize((nw, nh))
+    image_resized = cv2.resize(image, (nw, nh), interpolation=cv2.INTER_CUBIC)
     image_resized = np.array(image_resized)
 
     image_padded = np.full(shape=[ih, iw, 3], fill_value=128.0)
@@ -94,10 +95,13 @@ class TritonPythonModel(object):
             ) if name in request.requested_output_names()}
             for img in batch_in:  # img is shape (1,)
                 pil_img = Image.open(io.BytesIO(img.astype(bytes)))
-                image_data = image_preprocess(pil_img, [416, 416]).astype(np.float32)
-                batch_out['img'].append(image_data)
                 hw = [pil_img.size[1], pil_img.size[0]]
                 batch_out['orig_img_hw'].append(hw)
+                image = np.array(pil_img)
+                if len(image.shape) == 2:  # gray image
+                    image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+                image_data = image_preprocess(image, [416, 416]).astype(np.float32)
+                batch_out['img'].append(image_data)
 
             # Format outputs to build an InferenceResponse
             # Assumes there is only one output
