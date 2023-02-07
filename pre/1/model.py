@@ -99,7 +99,7 @@ class TritonPythonModel(object):
                 image = np.array(pil_img)
                 if len(image.shape) == 2:  # gray image
                     image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-                image_data = image_preprocess(image, [416, 416]).astype(np.float32)
+                image_data = image_preprocess(image, [416, 416]).astype(float)
                 batch_out['img'].append(image_data)
 
             # Format outputs to build an InferenceResponse

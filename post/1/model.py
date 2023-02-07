@@ -16,7 +16,7 @@ def get_anchors(anchors_path, tiny=False):
     '''loads the anchors from a file'''
     with open(anchors_path) as f:
         anchors = f.readline()
-    anchors = np.array(anchors.split(','), dtype=np.float32)
+    anchors = np.array(anchors.split(','), dtype=float)
     return anchors.reshape(3, 3, 2)
 
 def expit(x):
@@ -100,7 +100,7 @@ def bboxes_iou(boxes1, boxes2):
     inter_section = np.maximum(right_down - left_up, 0.0)
     inter_area    = inter_section[..., 0] * inter_section[..., 1]
     union_area    = boxes1_area + boxes2_area - inter_area
-    ious          = np.maximum(1.0 * inter_area / union_area, np.finfo(np.float32).eps)
+    ious          = np.maximum(1.0 * inter_area / union_area, np.finfo(float).eps)
 
     return ious
 
@@ -124,7 +124,7 @@ def nms(bboxes, iou_threshold, sigma=0.3, method='nms'):
             best_bboxes.append(best_bbox)
             cls_bboxes = np.concatenate([cls_bboxes[: max_ind], cls_bboxes[max_ind + 1:]])
             iou = bboxes_iou(best_bbox[np.newaxis, :4], cls_bboxes[:, :4])
-            weight = np.ones((len(iou),), dtype=np.float32)
+            weight = np.ones((len(iou),), dtype=float)
 
             assert method in ['nms', 'soft-nms']
 
