@@ -28,10 +28,9 @@ def image_preprocess(image, target_size, gt_boxes=None):
     if gt_boxes is None:
         return image_padded
 
-    else:
-        gt_boxes[:, [0, 2]] = gt_boxes[:, [0, 2]] * scale + dw
-        gt_boxes[:, [1, 3]] = gt_boxes[:, [1, 3]] * scale + dh
-        return image_padded, gt_boxes
+    gt_boxes[:, [0, 2]] = gt_boxes[:, [0, 2]] * scale + dw
+    gt_boxes[:, [1, 3]] = gt_boxes[:, [1, 3]] * scale + dh
+    return image_padded, gt_boxes
 
 class TritonPythonModel(object):
     def __init__(self):

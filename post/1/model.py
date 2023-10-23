@@ -100,9 +100,7 @@ def bboxes_iou(boxes1, boxes2):
     inter_section = np.maximum(right_down - left_up, 0.0)
     inter_area    = inter_section[..., 0] * inter_section[..., 1]
     union_area    = boxes1_area + boxes2_area - inter_area
-    ious          = np.maximum(1.0 * inter_area / union_area, np.finfo(float).eps)
-
-    return ious
+    return np.maximum(1.0 * inter_area / union_area, np.finfo(float).eps)
 
 def nms(bboxes, iou_threshold, sigma=0.3, method='nms'):
     """
@@ -227,7 +225,7 @@ class TritonPythonModel(object):
             max_num_bboxes_in_single_img = 0
 
             for out1, out2, out3, orig_img_hw in zip(batch_in['Identity:0'], batch_in['Identity_1:0'], batch_in['Identity_2:0'], batch_in['orig_img_hw']):
-                ANCHORS = os.path.dirname(os.path.realpath(__file__)) + "/yolov4_anchors.txt"
+                ANCHORS = f"{os.path.dirname(os.path.realpath(__file__))}/yolov4_anchors.txt"
                 STRIDES = [8, 16, 32]
                 XYSCALE = [1.2, 1.1, 1.05]
 
@@ -278,11 +276,7 @@ class TritonPythonModel(object):
                     if len(out) < max_num_bboxes_in_single_img:
                         num_to_add = max_num_bboxes_in_single_img - len(out)
                         to_add = ['0'] * num_to_add
-                        if len(out) == 0:
-                            batch_out['labels'][idx] = to_add
-                        else:
-                            batch_out['labels'][idx] = out + to_add
-
+                        batch_out['labels'][idx] = to_add if len(out) == 0 else out + to_add
             # Format outputs to build an InferenceResponse
             output_tensors = [Tensor(self.output_names[k], np.asarray(
                 out, dtype=self.output_dtypes[k])) for k, out in batch_out.items()]
